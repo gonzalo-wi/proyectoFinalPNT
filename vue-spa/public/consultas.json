@@ -1,0 +1,14 @@
+[
+  {
+    "id": "1",
+    "cliente": "cliente1@correo.com",
+    "mensaje": "\u00bfPuedo reprogramar un turno?",
+    "respondido": false
+  },
+  {
+    "id": "2",
+    "cliente": "cliente2@correo.com",
+    "mensaje": "\u00bfQu\u00e9 incluye una sesi\u00f3n de aromaterapia?",
+    "respondido": true
+  }
+]

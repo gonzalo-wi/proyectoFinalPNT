@@ -1,0 +1,23 @@
+[
+  {
+    "id": "1",
+    "cliente": "cliente1@correo.com",
+    "profesionalId": "1",
+    "fecha": "2025-06-07T01:19:04.354235",
+    "estado": "pendiente"
+  },
+  {
+    "id": "2",
+    "cliente": "cliente2@correo.com",
+    "profesionalId": "2",
+    "fecha": "2025-06-09T01:19:04.354252",
+    "estado": "confirmado"
+  },
+  {
+    "id": "3",
+    "cliente": "cliente1@correo.com",
+    "profesionalId": "1",
+    "fecha": "2025-06-11T01:19:04.354255",
+    "estado": "cancelado"
+  }
+]
