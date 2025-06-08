@@ -2,7 +2,7 @@
   <div class="max-w-4xl mx-auto mt-10 px-4">
     <h2 class="text-2xl font-bold text-purple-700 mb-6">👩‍⚕️ Profesionales</h2>
 
-    <!-- Solo admin puede ver el formulario -->
+ 
     <div
       v-if="usuario.tipoUsuario === 'admin'"
       class="bg-white shadow-md rounded-lg p-6 mb-8 space-y-4 border border-gray-200"
@@ -33,7 +33,7 @@
       </form>
     </div>
 
-    <!-- Listado de profesionales -->
+   
     <div class="space-y-4">
       <div
         v-for="p in profesionales"

@@ -70,7 +70,7 @@ async function registrarse() {
     })
     success.value = 'Registro exitoso. ¡Ahora podés iniciar sesión!'
     setTimeout(() => {
-      // Mantener redirect y servicioId en la query si existen
+      
       const redirect = route.query.redirect
       const servicioId = route.query.servicioId
       if (redirect) {

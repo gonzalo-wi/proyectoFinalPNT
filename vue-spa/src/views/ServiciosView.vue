@@ -70,7 +70,7 @@ function solicitarTurno(servicio) {
   const usuario = JSON.parse(localStorage.getItem('usuario'))
 
   if (!usuario) {
-    // Redirige al login y pasa el servicioId como redirect
+    
     router.push({
       name: 'Login',
       query: { redirect: 'NuevoTurno', servicioId: servicio.id }

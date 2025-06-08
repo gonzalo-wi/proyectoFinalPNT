@@ -3,5 +3,5 @@
 </template>
 
 <script setup>
-// vacío por ahora
+
 </script>

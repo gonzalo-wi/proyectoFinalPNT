@@ -124,7 +124,7 @@ const login = async () => {
       const redirect = route.query.redirect
       const servicioId = route.query.servicioId
       if (redirect) {
-        // Si hay servicioId, lo pasamos en la query
+        
         if (servicioId) {
           router.push({ name: redirect, query: { servicioId } })
         } else {

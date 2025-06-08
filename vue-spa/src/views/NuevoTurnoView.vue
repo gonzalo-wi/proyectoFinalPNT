@@ -61,7 +61,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getProfesionalesByEspecialidad } from '@/services/profesionalesService'
 
-const fs = window.require ? window.require('fs') : null // Para entorno Electron, no funcionará en navegador puro
+const fs = window.require ? window.require('fs') : null 
 const path = '/Users/gonzalowinazki/Desktop/Proyectos/proFinal/vue-spa/public/turnos.json'
 
 const route = useRoute()
@@ -139,12 +139,12 @@ function confirmarTurno() {
     estado: 'pendiente'
   }
 
-  // Guardar en localStorage (SPA) y en turnos.json (si es posible)
+ 
   const turnos = JSON.parse(localStorage.getItem('turnos')) || []
   turnos.push(nuevoTurno)
   localStorage.setItem('turnos', JSON.stringify(turnos))
 
-  // Intentar guardar en turnos.json si se puede (solo Node/Electron, no navegador puro)
+  
   if (fs) {
     try {
       let fileTurnos = []
@@ -154,12 +154,12 @@ function confirmarTurno() {
       fileTurnos.push(nuevoTurno)
       fs.writeFileSync(path, JSON.stringify(fileTurnos, null, 2))
     } catch (e) {
-      // Si falla, solo queda en localStorage
+      
       console.error('No se pudo guardar en turnos.json:', e)
     }
   }
 
   alert('¡Turno reservado con éxito!')
-  router.push({ name: 'MiTurno', query: { turnoId: nuevoTurno.id } }) // Redirige a la vista de detalle del turno
+  router.push({ name: 'MiTurno', query: { turnoId: nuevoTurno.id } }) 
 }
 </script>
