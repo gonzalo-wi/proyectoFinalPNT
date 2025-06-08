@@ -68,12 +68,21 @@
           {{ success }}
         </div>
       </form>
+      <p class="mt-4 text-center text-sm text-gray-600">
+        ¿No tenés cuenta?
+        <router-link
+          :to="{ name: 'Registrar', query: { redirect: route.query.redirect, servicioId: route.query.servicioId } }"
+          class="text-purple-700 font-semibold hover:underline"
+        >
+          Registrate acá
+        </router-link>
+      </p>
     </div>
   </div>
 </template>
 <script setup>
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { loginUsuario } from '../services/usuariosService'
 
 const email = ref('')
@@ -84,7 +93,9 @@ const loading = ref(false)
 const mostrarPassword = ref(false)
 const emailTouched = ref(false)
 const passwordTouched = ref(false)
+
 const router = useRouter()
+const route = useRoute()
 
 const emailValido = computed(() => /.+@.+\..+/.test(email.value))
 const passwordValida = computed(() => password.value.length >= 6)
@@ -94,7 +105,9 @@ const login = async () => {
   success.value = null
   emailTouched.value = true
   passwordTouched.value = true
+
   if (!emailValido.value || !passwordValida.value) return
+
   loading.value = true
   try {
     const user = await loginUsuario(email.value, password.value)
@@ -103,11 +116,25 @@ const login = async () => {
       loading.value = false
       return
     }
+
     localStorage.setItem('usuario', JSON.stringify(user))
     success.value = '¡Bienvenido! Redirigiendo...'
+
     setTimeout(() => {
-      router.push(user.tipoUsuario === 'admin' ? '/dashboard' : '/turnos')
+      const redirect = route.query.redirect
+      const servicioId = route.query.servicioId
+      if (redirect) {
+        // Si hay servicioId, lo pasamos en la query
+        if (servicioId) {
+          router.push({ name: redirect, query: { servicioId } })
+        } else {
+          router.push({ name: redirect })
+        }
+      } else {
+        router.push(user.tipoUsuario === 'admin' ? '/dashboard' : '/nuevoTurno')
+      }
     }, 1000)
+
   } catch (e) {
     error.value = 'Error al iniciar sesión'
     console.error(e)

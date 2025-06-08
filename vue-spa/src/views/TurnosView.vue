@@ -126,12 +126,18 @@ const turnoEditando = ref(null)
 const modoEdicion = ref(false)
 
 onMounted(async () => {
-  
-  const resTurnos = await fetch('/turnos.json')
-  turnos.value = await resTurnos.json()
-  loadingTurnos.value = false
+  // Primero intento cargar de localStorage
+  const localTurnos = JSON.parse(localStorage.getItem('turnos'))
+  if (localTurnos && Array.isArray(localTurnos) && localTurnos.length > 0) {
+    turnos.value = localTurnos
+    loadingTurnos.value = false
+  } else {
+    // Si no hay en localStorage, cargo los de turnos.json
+    const resTurnos = await fetch('/turnos.json')
+    turnos.value = await resTurnos.json()
+    loadingTurnos.value = false
+  }
 
-  
   const resProfesionales = await getProfesionales()
   profesionales.value = resProfesionales.data
 })

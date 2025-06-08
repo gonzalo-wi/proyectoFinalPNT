@@ -7,43 +7,59 @@
 
     <div class="flex items-center gap-6">
       <router-link
-      v-if="tipoUsuario === 'admin'"
+        v-if="tipoUsuario === 'admin'"
         to="/dashboard"
         class="hover:underline transition-all duration-150"
         active-class="font-bold underline text-yellow-300"
       >Dashboard</router-link>
-
       <router-link
         v-if="tipoUsuario === 'admin'"
         to="/turnos"
         class="hover:underline transition-all duration-150"
         active-class="font-bold underline text-yellow-300"
       >Turnos</router-link>
-
       <router-link
         v-if="tipoUsuario === 'admin'"
         to="/reportes"
         class="hover:underline transition-all duration-150"
         active-class="font-bold underline text-yellow-300"
       >Reportes</router-link>
-
       <router-link
         v-if="tipoUsuario === 'admin'"
         to="/consultas"
         class="hover:underline transition-all duration-150"
         active-class="font-bold underline text-yellow-300"
       >Consultas</router-link>
-
-      <span class="hidden sm:flex items-center gap-2 bg-purple-900 px-2 py-1 rounded-full">
+      <router-link
+        v-if="usuarioLogueado"
+        to="/mis-turnos"
+        class="hover:underline transition-all duration-150 font-semibold"
+        active-class="font-bold underline text-yellow-300"
+      >Mis Turnos</router-link>
+      <router-link
+        v-if="usuarioLogueado"
+        to="/servicios"
+        class="hover:underline transition-all duration-150 font-semibold"
+        active-class="font-bold underline text-yellow-300"
+      >Servicios</router-link>
+      <span v-if="usuarioLogueado" class="hidden sm:flex items-center gap-2 bg-purple-900 px-2 py-1 rounded-full">
         <span class="bg-white text-purple-700 rounded-full w-6 h-6 flex items-center justify-center font-bold">{{ inicialUsuario }}</span>
         <span>Hola, {{ nombreUsuario }}</span>
         <span class="text-xs ml-2 px-2 py-0.5 rounded bg-purple-600">{{ tipoUsuario }}</span>
       </span>
       <button
+        v-if="usuarioLogueado"
         @click="confirmarCerrarSesion"
         class="bg-purple-900 hover:bg-purple-800 px-3 py-1 rounded transition-all duration-150"
       >
         Cerrar sesión
+      </button>
+      <button
+        v-else
+        @click="irALogin"
+        class="bg-purple-900 hover:bg-purple-800 px-3 py-1 rounded transition-all duration-150"
+      >
+        Iniciar sesión
       </button>
     </div>
   </nav>
@@ -67,9 +83,10 @@ const router = useRouter()
 const mostrarModal = ref(false)
 
 const usuarioObj = JSON.parse(localStorage.getItem('usuario')) || {}
-const nombreUsuario = usuarioObj.name || 'Usuario'
+const nombreUsuario = usuarioObj.name && typeof usuarioObj.name === 'string' ? usuarioObj.name : (usuarioObj.email ? usuarioObj.email.split('@')[0] : 'Usuario')
 const tipoUsuario = usuarioObj.tipoUsuario || 'cliente'
 const inicialUsuario = nombreUsuario.charAt(0).toUpperCase()
+const usuarioLogueado = !!localStorage.getItem('usuario')
 
 const cerrarSesion = () => {
   localStorage.removeItem('usuario')
@@ -79,5 +96,9 @@ const cerrarSesion = () => {
 
 const confirmarCerrarSesion = () => {
   mostrarModal.value = true
+}
+
+const irALogin = () => {
+  router.push({ name: 'Login' })
 }
 </script>
