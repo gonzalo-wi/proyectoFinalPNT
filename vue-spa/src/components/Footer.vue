@@ -2,7 +2,7 @@
   <footer class="mt-16 bg-[#E6E6FA] text-purple-800 py-6 text-center text-sm border-t border-purple-200">
     <div class="mb-2">
       <p>&copy; 2025 Centro de Bienestar. Todos los derechos reservados Wiñazki Gonzalo.</p>
-      <p>Santiago de Liniers 3118, Ciudadela • Tel: (011) 64449097</p>
+      <p>Santiago de Liniers 3118, Ciudadela • Tel: (011) 6444-9097</p>
     </div>
     <div class="flex justify-center gap-4 mt-4">
       <a href="https://www.instagram.com/centrobienestar" target="_blank" class="hover:scale-110 transition">

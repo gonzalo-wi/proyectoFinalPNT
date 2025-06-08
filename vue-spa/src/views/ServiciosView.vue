@@ -21,8 +21,10 @@
           :key="servicio.id"
           :nombre="servicio.nombre"
           :imagen="servicio.imagen"
+          :descripcion="servicio.descripcion"
           :onSolicitarTurno="() => solicitarTurno(servicio)"
           :onCardClick="() => verDetalles(servicio)"
+          :onVerDetalles="() => verDetalles(servicio)"
         />
       </div>
 
@@ -30,19 +32,48 @@
       <div class="h-24 md:h-32"></div>
 
       <div class="bg-purple-50 rounded-xl shadow p-6 text-center max-w-3xl mx-auto animate-carrusel-in">
-        <carousel v-slot="{ current }" :autoplay="true" :interval="5000" class="mb-4">
-          <div v-for="(item, idx) in carruselItems" :key="idx" v-show="current === idx" class="transition-all duration-500">
-            <p class="italic text-lg text-purple-700">{{ item.texto }}</p>
-            <div v-if="item.autor" class="mt-2 text-purple-500 font-semibold">— {{ item.autor }}</div>
+        <div class="mb-4 min-h-[70px] flex flex-col items-center justify-center">
+          <transition name="fade" mode="out-in">
+            <div :key="carruselIndex" class="w-full">
+              <p class="italic text-lg text-purple-700">{{ carruselItems[carruselIndex].texto }}</p>
+              <div v-if="carruselItems[carruselIndex].autor" class="mt-2 text-purple-500 font-semibold">— {{ carruselItems[carruselIndex].autor }}</div>
+            </div>
+          </transition>
+        </div>
+        <div class="flex justify-center gap-2 mt-2">
+          <button v-for="(item, idx) in carruselItems" :key="idx" @click="carruselIndex = idx"
+            :class="['w-2 h-2 rounded-full', idx === carruselIndex ? 'bg-purple-500' : 'bg-purple-200']"
+            aria-label="Ir a frase" />
+        </div>
+      </div>
+    </div>
+
+    
+    <div v-if="servicioSeleccionado" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-3xl p-0 max-w-3xl w-full shadow-2xl relative overflow-hidden animate-fade-in">
+        <div class="flex flex-col md:flex-row">
+          <div class="md:w-1/2 flex items-center justify-center bg-gradient-to-br from-purple-100 to-blue-100 p-8">
+            <img :src="servicioSeleccionado.imagen" class="w-full h-80 object-cover rounded-2xl shadow-md" />
           </div>
-        </carousel>
+          <div class="md:w-1/2 flex flex-col justify-between p-8">
+            <button @click="cerrarModal" class="absolute top-4 right-6 text-gray-400 hover:text-red-600 text-3xl font-bold">&times;</button>
+            <h3 class="text-3xl font-bold text-purple-800 mb-4">{{ servicioSeleccionado.nombre }}</h3>
+            <p class="text-gray-700 mb-8 text-lg leading-relaxed">{{ servicioSeleccionado.descripcion }}</p>
+            <button
+              class="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-3 rounded-lg font-semibold text-lg shadow transition"
+              @click="solicitarTurno(servicioSeleccionado)"
+            >
+              Reservar este servicio
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, defineComponent, h, getCurrentInstance } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import ServicioCard from '@/components/ServicioCard.vue'
 
@@ -56,48 +87,16 @@ const carruselItems = ref([
   { texto: '“Invertir en ti mismo es el mejor regalo que puedes darte.”', autor: 'Deepak Chopra' },
   { texto: '“La salud es la mayor posesión. La alegría es el mayor tesoro.”', autor: 'Lao Tse' }
 ])
+const carruselIndex = ref(0)
+let carruselTimer = null
 
-
-const carousel = defineComponent({
-  name: 'carousel',
-  props: {
-    interval: { type: Number, default: 5000 },
-    autoplay: { type: Boolean, default: true }
-  },
-  data() {
-    return { current: 0, timer: null, total: 1 }
-  },
-  mounted() {
-    
-    this.updateTotal();
-    if (this.autoplay) this.start();
-  },
-  updated() {
-    
-    this.updateTotal();
-  },
-  beforeUnmount() {
-    clearInterval(this.timer)
-  },
-  methods: {
-    updateTotal() {
-      const slotFn = this.$slots.default;
-      const slotContent = slotFn ? slotFn({ current: this.current }) : [];
-      this.total = Array.isArray(slotContent) ? slotContent.length : 1;
-    },
-    start() {
-      clearInterval(this.timer);
-      this.timer = setInterval(() => {
-        this.current = (this.current + 1) % this.total;
-      }, this.interval);
-    }
-  },
-  render() {
-    const slotFn = this.$slots.default;
-    if (!slotFn) return null;
-    const slotContent = slotFn({ current: this.current });
-    return h('div', {}, slotContent)
-  }
+onMounted(() => {
+  carruselTimer = setInterval(() => {
+    carruselIndex.value = (carruselIndex.value + 1) % carruselItems.value.length
+  }, 5000)
+})
+onBeforeUnmount(() => {
+  clearInterval(carruselTimer)
 })
 
 const router = useRouter()
@@ -190,5 +189,11 @@ function cerrarModal() {
 }
 .animate-carrusel-in {
   animation: carrusel-in 0.7s cubic-bezier(0.4,0,0.2,1);
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
 }
 </style>
