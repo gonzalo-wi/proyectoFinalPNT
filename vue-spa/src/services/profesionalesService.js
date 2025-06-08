@@ -7,6 +7,7 @@ const api = axios.create({
 export const getProfesionales = () => api.get('/profesional')
 export const createProfesional = (data) => api.post('/profesional', data)
 export const deleteProfesional = (id) => api.delete(`/profesional/${id}`)
+export const updateProfesional = (id, data) => api.put(`/profesional/${id}`, data)
 export const getProfesionalesByEspecialidad = async (especialidad) => {
   const res = await getProfesionales()
   return res.data.filter(p => p.especialidad && p.especialidad.toLowerCase().includes(especialidad.toLowerCase()))

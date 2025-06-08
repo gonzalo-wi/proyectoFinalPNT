@@ -22,6 +22,7 @@ const routes = [
   { path: '/nuevoTurno',name: 'NuevoTurno', component: NuevoTurnoView },
   { path: '/mi-turno', name: 'MiTurno', component: () => import('../views/MiTurnoView.vue') },
   { path: '/mis-turnos', name: 'MisTurnos', component: () => import('../views/MisTurnosView.vue') },
+  { path: '/alta-profesional', name: 'AltaProfesional', component: () => import('../views/AltaProfesionalView.vue') },
 ]
 
 const router = createRouter({
