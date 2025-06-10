@@ -3,7 +3,7 @@
     <h2 class="text-2xl font-bold mb-6 text-purple-700">📅 Listado de Turnos</h2>
 
     
-    <form @submit.prevent="modoEdicion ? actualizarTurno() : crearTurno()" class="bg-white shadow-md rounded-lg p-6 mb-8 space-y-4">
+    <form @submit.prevent="modoEdicion ? actualizarTurnoForm() : crearTurnoForm()" class="bg-white shadow-md rounded-lg p-6 mb-8 space-y-4">
       <div>
         <label class="block text-sm font-medium text-gray-700">Profesional:</label>
         <select
@@ -93,7 +93,7 @@
               Editar
             </button>
             <button
-              @click="eliminarTurno(t.id)"
+              @click="eliminarTurnoForm(t.id)"
               class="text-sm text-red-600 hover:underline"
             >
               Eliminar
@@ -108,87 +108,101 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getProfesionales } from '../services/profesionalesService'
+import { listarTurnos, crearTurno, eliminarTurno, actualizarTurno } from '../services/turnosService'
 
 const turnos = ref([])
 const profesionales = ref([])
 const loadingTurnos = ref(true)
 
 const turnoForm = ref({
-  cliente: 'cliente1@correo.com',
+  cliente: '',
   profesionalId: '',
   fecha: '',
   estado: 'pendiente'
 })
 
-const turnoOriginalParaCancelar = ref(null) 
-
+const turnoOriginalParaCancelar = ref(null)
 const turnoEditando = ref(null)
 const modoEdicion = ref(false)
 
 onMounted(async () => {
-  
-  const localTurnos = JSON.parse(localStorage.getItem('turnos'))
-  if (localTurnos && Array.isArray(localTurnos) && localTurnos.length > 0) {
-    turnos.value = localTurnos
-    loadingTurnos.value = false
-  } else {
-   
-    const resTurnos = await fetch('/turnos.json')
-    turnos.value = await resTurnos.json()
-    loadingTurnos.value = false
-  }
-
+  await cargarTurnos()
   const resProfesionales = await getProfesionales()
   profesionales.value = resProfesionales.data
 })
 
+async function cargarTurnos() {
+  loadingTurnos.value = true
+  try {
+    const res = await listarTurnos()
+    turnos.value = res.data
+  } catch (e) {
+    turnos.value = []
+  }
+  loadingTurnos.value = false
+}
+
 const getNombreProfesional = (profesionalId) => {
-  const profesional = profesionales.value.find(p => p.id === profesionalId)
+  const profesional = profesionales.value.find(p => String(p.id) === String(profesionalId))
   return profesional ? profesional.name : 'Desconocido'
 }
 
-const crearTurno = () => {
-  const nuevo = { ...turnoForm.value, id: crypto.randomUUID() }
-  turnos.value.push(nuevo)
-
-  turnoForm.value.profesionalId = ''
-  turnoForm.value.fecha = ''
-  turnoForm.value.estado = 'pendiente'
+const crearTurnoForm = async () => {
+  try {
+    
+    let fechaISO = turnoForm.value.fecha
+    if (fechaISO && fechaISO.length === 16) {
+      fechaISO += ':00' 
+    }
+    await crearTurno({
+      cliente: turnoForm.value.cliente || 'cliente@correo.com',
+      profesionalId: String(turnoForm.value.profesionalId),
+      fecha: fechaISO,
+      estado: turnoForm.value.estado
+    })
+    await cargarTurnos()
+    turnoForm.value = { cliente: '', profesionalId: '', fecha: '', estado: 'pendiente' }
+  } catch (e) {
+    alert('Error al crear el turno')
+    console.error(e)
+  }
 }
 
 const editarTurno = (turno) => {
-  turnoOriginalParaCancelar.value = { ...turno } 
+  turnoOriginalParaCancelar.value = { ...turno }
   turnoForm.value = { ...turno }
   turnoEditando.value = turno
   modoEdicion.value = true
 }
 
-const actualizarTurno = () => {
-  if (!turnoEditando.value) return;
-  const index = turnos.value.findIndex(t => t.id === turnoEditando.value.id)
-  if (index !== -1) {
-    turnos.value[index] = { ...turnoForm.value }
+const actualizarTurnoForm = async () => {
+  if (!turnoEditando.value) return
+  try {
+    await actualizarTurno(turnoEditando.value.id, { ...turnoForm.value })
+    await cargarTurnos()
+    cancelarEdicion()
+  } catch (e) {
+    alert('Error al actualizar el turno')
   }
-  cancelarEdicion() 
 }
 
 const cancelarEdicion = () => {
   modoEdicion.value = false
   turnoEditando.value = null
   turnoOriginalParaCancelar.value = null
-  turnoForm.value = {
-    cliente: 'cliente1@correo.com',
-    profesionalId: '',
-    fecha: '',
-    estado: 'pendiente'
-  }
+  turnoForm.value = { cliente: '', profesionalId: '', fecha: '', estado: 'pendiente' }
 }
 
-const eliminarTurno = (id) => {
+const eliminarTurnoForm = async (id) => {
   if (window.confirm('¿Estás seguro de que querés eliminar este turno?')) {
-    turnos.value = turnos.value.filter(t => t.id !== id)
-    if (turnoEditando.value && turnoEditando.value.id === id) {
-      cancelarEdicion(); 
+    try {
+      await eliminarTurno(id)
+      await cargarTurnos()
+      if (turnoEditando.value && turnoEditando.value.id === id) {
+        cancelarEdicion()
+      }
+    } catch (e) {
+      alert('Error al eliminar el turno')
     }
   }
 }

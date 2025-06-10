@@ -60,9 +60,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getProfesionalesByEspecialidad } from '@/services/profesionalesService'
-
-const fs = window.require ? window.require('fs') : null 
-const path = '/Users/gonzalowinazki/Desktop/Proyectos/proFinal/vue-spa/public/turnos.json'
+import { crearTurno } from '@/services/turnosService'
 
 const route = useRoute()
 const router = useRouter()
@@ -119,7 +117,7 @@ function cargarHorarios() {
   horario.value = ''
 }
 
-function confirmarTurno() {
+async function confirmarTurno() {
   const usuario = JSON.parse(localStorage.getItem('usuario'))
 
   if (!usuario) {
@@ -129,37 +127,20 @@ function confirmarTurno() {
   }
 
   const nuevoTurno = {
-    id: Date.now(),
-    servicioId: servicio.value.id,
-    servicioNombre: servicio.value.nombre,
-    fecha: fecha.value,
-    profesionalId: profesionalId.value,
-    horario: horario.value,
     cliente: usuario.email || usuario.name || 'Cliente',
+    profesionalId: profesionalId.value,
+    fecha: fecha.value + 'T' + (horario.value || '00:00:00'),
     estado: 'pendiente'
   }
 
- 
-  const turnos = JSON.parse(localStorage.getItem('turnos')) || []
-  turnos.push(nuevoTurno)
-  localStorage.setItem('turnos', JSON.stringify(turnos))
-
-  
-  if (fs) {
-    try {
-      let fileTurnos = []
-      if (fs.existsSync(path)) {
-        fileTurnos = JSON.parse(fs.readFileSync(path, 'utf-8'))
-      }
-      fileTurnos.push(nuevoTurno)
-      fs.writeFileSync(path, JSON.stringify(fileTurnos, null, 2))
-    } catch (e) {
-      
-      console.error('No se pudo guardar en turnos.json:', e)
-    }
+  try {
+    const res = await crearTurno(nuevoTurno)
+    const turnoCreado = res.data
+    alert('¡Turno reservado con éxito!')
+    router.push({ name: 'MiTurno', query: { turnoId: turnoCreado.id } })
+  } catch (e) {
+    alert('Error al reservar el turno. Intenta nuevamente.')
+    console.error(e)
   }
-
-  alert('¡Turno reservado con éxito!')
-  router.push({ name: 'MiTurno', query: { turnoId: nuevoTurno.id } }) 
 }
 </script>

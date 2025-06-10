@@ -23,6 +23,7 @@ const routes = [
   { path: '/mi-turno', name: 'MiTurno', component: () => import('../views/MiTurnoView.vue') },
   { path: '/mis-turnos', name: 'MisTurnos', component: () => import('../views/MisTurnosView.vue') },
   { path: '/alta-profesional', name: 'AltaProfesional', component: () => import('../views/AltaProfesionalView.vue') },
+  { path: '/consultas-admin', name: 'ConsultasAdmin', component: () => import('../views/ConsultasAdminView.vue') },
 ]
 
 const router = createRouter({

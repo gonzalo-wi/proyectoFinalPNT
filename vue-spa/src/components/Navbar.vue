@@ -29,7 +29,7 @@
 
       <router-link
         v-if="tipoUsuario === 'admin'"
-        to="/consultas"
+        to="/consultas-admin"
         class="hover:underline transition-all duration-150"
         active-class="font-bold underline text-purple-600"
       >Consultas</router-link>
@@ -42,7 +42,7 @@
       >Alta Profesional</router-link>
 
       <router-link
-        v-if="usuarioLogueado"
+        v-if="usuarioLogueado && tipoUsuario !== 'admin'"
         to="/mis-turnos"
         class="hover:underline transition-all duration-150 font-semibold"
         active-class="font-bold underline text-purple-600"
@@ -54,6 +54,13 @@
         class="hover:underline transition-all duration-150 font-semibold"
         active-class="font-bold underline text-purple-600"
       >Servicios</router-link>
+
+      <router-link
+        v-if="usuarioLogueado && tipoUsuario !== 'admin'"
+        to="/consultas"
+        class="hover:underline transition-all duration-150 font-semibold"
+        active-class="font-bold underline text-purple-600"
+      >Mis Consultas</router-link>
 
       <span
         v-if="usuarioLogueado"
