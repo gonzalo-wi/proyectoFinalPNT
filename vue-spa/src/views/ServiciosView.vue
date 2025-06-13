@@ -5,7 +5,18 @@
     
     <div class="relative z-10">
       <div class="relative max-w-5xl mx-auto mb-8 rounded-2xl overflow-hidden shadow-lg animate-fade-in">
-        <img src="/src/assets/banner.png" alt="Banner Centro de Bienestar" class="w-full h-96 object-cover object-center" />
+        <img
+          :src="isMobile ? '/src/assets/BannerMobile.png' : '/src/assets/banner.png'"
+          alt="Banner Centro de Bienestar"
+          class="w-full h-96 object-cover object-center md:block hidden"
+          v-if="!isMobile"
+        />
+        <img
+          :src="isMobile ? '/src/assets/BannerMobile.png' : '/src/assets/banner.png'"
+          alt="Banner Centro de Bienestar Mobile"
+          class="w-full h-64 object-cover object-center md:hidden block"
+          v-if="isMobile"
+        />
         <div class="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-t from-black/60 via-black/20 to-transparent">
           <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow-lg mb-2 animate-banner-title">Centro de Bienestar</h1>
           <p class="text-lg md:text-2xl text-white font-medium bg-black/30 rounded-xl px-6 py-2 animate-banner-sub">Tu espacio para el equilibrio y la armonía</p>
@@ -76,6 +87,15 @@
         </div>
       </div>
     </div>
+
+    <img
+      src="/src/assets/icons-whatsapp.svg"
+      alt="WhatsApp"
+      class="fixed z-50 bottom-6 right-6 w-16 h-16 rounded-full shadow-lg cursor-pointer whatsapp-float"
+      @mouseenter="whatsappHover = true"
+      @mouseleave="whatsappHover = false"
+      @click="abrirWhatsApp"
+    />
   </div>
 </template>
 
@@ -131,6 +151,8 @@ const servicios = ref([
 ])
 
 const loadingReservar = ref(false)
+const whatsappHover = ref(false)
+const isMobile = ref(false)
 
 function solicitarTurno(servicio) {
   if (loadingReservar.value) return
@@ -157,6 +179,22 @@ function verDetalles(servicio) {
 function cerrarModal() {
   servicioSeleccionado.value = null
 }
+
+function abrirWhatsApp() {
+  window.open('https://wa.me/5491164449097', '_blank')
+}
+
+function checkMobile() {
+  isMobile.value = window.innerWidth < 768
+}
+
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', checkMobile)
+})
 </script>
 
 <style scoped>
@@ -221,5 +259,13 @@ function cerrarModal() {
 .boton-animado-boton:hover {
   transform: translateY(-6px) scale(1.07);
   box-shadow: 0 8px 32px 0 rgba(80, 0, 120, 0.18);
+}
+.whatsapp-float {
+  transition: transform 0.18s cubic-bezier(.4,0,.2,1), box-shadow 0.18s cubic-bezier(.4,0,.2,1), filter 0.18s cubic-bezier(.4,0,.2,1);
+}
+.whatsapp-float:hover {
+  transform: scale(1.13) translateY(-4px) rotate(-8deg);
+  box-shadow: 0 8px 32px 0 rgba(37, 211, 102, 0.18);
+  filter: brightness(1.08) drop-shadow(0 0 8px #25d36688);
 }
 </style>

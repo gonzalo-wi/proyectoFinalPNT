@@ -190,8 +190,15 @@
     <div class="bg-white text-gray-800 rounded-lg shadow-lg p-6 w-80">
       <p class="mb-4">¿Seguro que querés cerrar sesión?</p>
       <div class="flex justify-end gap-2">
-        <button @click="cerrarSesion" class="bg-purple-400 text-white px-3 py-1 rounded">Sí</button>
-        <button @click="mostrarModal = false" class="bg-gray-300 px-3 py-1 rounded">No</button>
+        <button @click="handleCerrarSesion" :disabled="loadingCerrarSesion" class="bg-purple-400 text-white px-3 py-1 rounded flex items-center gap-2 boton-animado-boton disabled:opacity-60 disabled:cursor-not-allowed">
+          <svg v-if="loadingCerrarSesion" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+          </svg>
+          <span v-if="!loadingCerrarSesion">Sí</span>
+          <span v-else>Cerrando...</span>
+        </button>
+        <button @click="mostrarModal = false" :disabled="loadingCerrarSesion" class="bg-gray-300 px-3 py-1 rounded boton-animado-boton disabled:opacity-60 disabled:cursor-not-allowed">No</button>
       </div>
     </div>
   </div>
@@ -204,6 +211,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const mostrarModal = ref(false)
 const menuAbierto = ref(false)
+const loadingCerrarSesion = ref(false)
 
 const usuarioObj = JSON.parse(localStorage.getItem('usuario')) || {}
 const nombreUsuario = usuarioObj.name && typeof usuarioObj.name === 'string' ? usuarioObj.name : (usuarioObj.email ? usuarioObj.email.split('@')[0] : 'Usuario')
@@ -223,6 +231,13 @@ const confirmarCerrarSesion = () => {
 
 const irALogin = () => {
   router.push({ name: 'Login' })
+}
+
+async function handleCerrarSesion() {
+  loadingCerrarSesion.value = true
+  await new Promise(resolve => setTimeout(resolve, 1200))
+  cerrarSesion()
+  loadingCerrarSesion.value = false
 }
 </script>
 

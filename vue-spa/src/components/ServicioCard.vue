@@ -94,4 +94,12 @@ function handleSolicitarTurno() {
   transform: translateY(-3px) scale(1.04);
   box-shadow: 0 4px 16px 0 rgba(80, 0, 120, 0.13);
 }
+.bg-white.rounded-2xl.shadow-lg.flex.flex-col.h-full.border.border-purple-100.hover\:shadow-2xl.hover\:-translate-y-1.transform.transition.min-h-\[420px\].cursor-pointer.group.animate-fade-in-up {
+  transition: box-shadow 0.18s cubic-bezier(.4,0,.2,1), transform 0.18s cubic-bezier(.4,0,.2,1), filter 0.18s cubic-bezier(.4,0,.2,1);
+}
+.bg-white.rounded-2xl.shadow-lg.flex.flex-col.h-full.border.border-purple-100.hover\:shadow-2xl.hover\:-translate-y-1.transform.transition.min-h-\[420px\].cursor-pointer.group.animate-fade-in-up:hover {
+  box-shadow: 0 8px 32px 0 rgba(80,0,120,0.13), 0 1.5px 8px 0 rgba(80,0,120,0.10);
+  transform: translateY(-6px) scale(1.025) rotate(-0.5deg);
+  filter: brightness(1.03) saturate(1.08);
+}
 </style>
