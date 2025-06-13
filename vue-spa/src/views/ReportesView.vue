@@ -23,9 +23,11 @@
           </select>
         </label>
       </div>
-      <button @click="exportarCSV" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold shadow transition-all flex items-center gap-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-        Exportar CSV
+      <button @click="handleExportarCSV" :disabled="loadingExport" class="boton-animado-boton bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold shadow transition-all flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+        <svg v-if="!loadingExport" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        <svg v-else class="animate-spin w-5 h-5 text-white" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+        <span v-if="!loadingExport">Exportar CSV</span>
+        <span v-else>Cargando...</span>
       </button>
     </div>
     <div class="overflow-x-auto bg-white rounded-xl shadow flex justify-center">
@@ -67,6 +69,8 @@ const turnos = ref([])
 const profesionales = ref([])
 const filtroProfesional = ref('')
 const filtroEstado = ref('')
+const loadingExportar = ref(false)
+const loadingExport = ref(false)
 
 onMounted(async () => {
   const resTurnos = await listarTurnos()
@@ -106,24 +110,36 @@ function estadoClass(estado) {
 }
 
 function exportarCSV() {
-  const rows = [
-    ['Cliente', 'Profesional', 'Fecha', 'Horario', 'Estado'],
-    ...turnosFiltrados.value.map(t => [
-      t.cliente,
-      getNombreProfesional(t.profesionalId),
-      formatearFecha(t.fecha),
-      formatearHora(t.fecha),
-      t.estado
-    ])
-  ]
-  const csvContent = rows.map(e => e.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(",")).join("\n")
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-  const link = document.createElement('a')
-  link.href = URL.createObjectURL(blob)
-  link.setAttribute('download', `reporte_turnos_${new Date().toISOString().slice(0,10)}.csv`)
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
+  if (loadingExportar.value) return
+  loadingExportar.value = true
+  setTimeout(() => {
+    const rows = [
+      ['Cliente', 'Profesional', 'Fecha', 'Horario', 'Estado'],
+      ...turnosFiltrados.value.map(t => [
+        t.cliente,
+        getNombreProfesional(t.profesionalId),
+        formatearFecha(t.fecha),
+        formatearHora(t.fecha),
+        t.estado
+      ])
+    ]
+    const csvContent = rows.map(e => e.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(",")).join("\n")
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.setAttribute('download', `reporte_turnos_${new Date().toISOString().slice(0,10)}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    loadingExportar.value = false
+  }, 1200)
+}
+
+async function handleExportarCSV() {
+  loadingExport.value = true
+  await new Promise(resolve => setTimeout(resolve, 1200)) 
+  exportarCSV()
+  loadingExport.value = false
 }
 </script>
 
@@ -132,4 +148,12 @@ function exportarCSV() {
 .bg-purple-100 { background-color: #ede9fe; }
 .text-purple-700 { color: #7c3aed; }
 .text-purple-400 { color: #a78bfa; }
+.boton-animado-boton {
+  transition: transform 0.13s cubic-bezier(.4,0,.2,1), box-shadow 0.13s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 2px 8px 0 rgba(124,58,237,0.08);
+}
+.boton-animado-boton:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 18px 0 rgba(124,58,237,0.13);
+}
 </style>

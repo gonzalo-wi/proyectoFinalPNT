@@ -48,9 +48,14 @@
 
       <button
         type="submit"
-        class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-lg transition"
+        class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-lg transition boton-animado-boton flex items-center justify-center gap-2"
+        :disabled="loadingConfirmar"
       >
-        Confirmar Turno
+        <svg v-if="loadingConfirmar" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+        </svg>
+        <span v-else>Confirmar Turno</span>
       </button>
     </form>
   </div>
@@ -71,7 +76,7 @@ const fecha = ref('')
 const profesionalId = ref('')
 const horarios = ref([])
 const horario = ref('')
-
+const loadingConfirmar = ref(false)
 
 const especialistas = {
   1: 'reikista',
@@ -118,29 +123,44 @@ function cargarHorarios() {
 }
 
 async function confirmarTurno() {
-  const usuario = JSON.parse(localStorage.getItem('usuario'))
+  if (loadingConfirmar.value) return
+  loadingConfirmar.value = true
+  setTimeout(async () => {
+    loadingConfirmar.value = false
+    const usuario = JSON.parse(localStorage.getItem('usuario'))
 
-  if (!usuario) {
-    alert('No estás logueado. Redirigiendo al login.')
-    router.push({ name: 'Login', query: { redirect: 'NuevoTurno' } })
-    return
-  }
+    if (!usuario) {
+      alert('No estás logueado. Redirigiendo al login.')
+      router.push({ name: 'Login', query: { redirect: 'NuevoTurno' } })
+      return
+    }
 
-  const nuevoTurno = {
-    cliente: usuario.email || usuario.name || 'Cliente',
-    profesionalId: profesionalId.value,
-    fecha: fecha.value + 'T' + (horario.value || '00:00:00'),
-    estado: 'pendiente'
-  }
+    const nuevoTurno = {
+      cliente: usuario.email || usuario.name || 'Cliente',
+      profesionalId: profesionalId.value,
+      fecha: fecha.value + 'T' + (horario.value || '00:00:00'),
+      estado: 'pendiente'
+    }
 
-  try {
-    const res = await crearTurno(nuevoTurno)
-    const turnoCreado = res.data
-    alert('¡Turno reservado con éxito!')
-    router.push({ name: 'MiTurno', query: { turnoId: turnoCreado.id } })
-  } catch (e) {
-    alert('Error al reservar el turno. Intenta nuevamente.')
-    console.error(e)
-  }
+    try {
+      const res = await crearTurno(nuevoTurno)
+      const turnoCreado = res.data
+      alert('¡Turno reservado con éxito!')
+      router.push({ name: 'MiTurno', query: { turnoId: turnoCreado.id } })
+    } catch (e) {
+      alert('Error al reservar el turno. Intenta nuevamente.')
+      console.error(e)
+    }
+  }, 1200)
 }
 </script>
+
+<style scoped>
+.boton-animado-boton {
+  transition: transform 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+.boton-animado-boton:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 4px 16px 0 rgba(80, 0, 120, 0.13);
+}
+</style>

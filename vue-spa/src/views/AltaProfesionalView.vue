@@ -20,10 +20,16 @@
         <input v-model="horariosInput" type="text" placeholder="Ej: 10:00, 11:00, 12:00" class="w-full border border-purple-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-500 transition" />
       </div>
       <div class="flex gap-2">
-        <button type="submit" class="flex-1 bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white font-bold py-2 rounded-lg shadow transition text-lg flex items-center justify-center gap-2">
-          <svg v-if="!editando" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-          <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-          {{ editando ? 'Actualizar Profesional' : 'Agregar Profesional' }}
+        <button type="submit" class="flex-1 bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white font-bold py-2 rounded-lg shadow transition text-lg flex items-center justify-center gap-2 boton-animado-boton" :disabled="loadingAgregar">
+          <svg v-if="loadingAgregar" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+          </svg>
+          <span v-else>
+            <svg v-if="!editando" class="w-5 h-5 inline-block mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            <svg v-else class="w-5 h-5 inline-block mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            {{ editando ? 'Actualizar Profesional' : 'Agregar Profesional' }}
+          </span>
         </button>
         <button v-if="editando" type="button" @click="cancelarEdicion" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 rounded-lg shadow transition text-lg">Cancelar</button>
       </div>
@@ -64,6 +70,7 @@ const error = ref('')
 const profesionales = ref([])
 const editando = ref(false)
 const profesionalEditandoId = ref(null)
+const loadingAgregar = ref(false)
 
 const cargarProfesionales = async () => {
   const res = await getProfesionales()
@@ -75,23 +82,29 @@ onMounted(() => {
 })
 
 async function crearProfesional() {
+  if (loadingAgregar.value) return
+  loadingAgregar.value = true
   mensaje.value = ''
   error.value = ''
-  try {
-    const horarios = horariosInput.value.split(',').map(h => h.trim()).filter(Boolean)
-    await createProfesional({
-      name: nombre.value,
-      especialidad: especialidad.value,
-      horariosDispo: horarios
-    })
-    mensaje.value = 'Profesional agregado correctamente.'
-    nombre.value = ''
-    especialidad.value = ''
-    horariosInput.value = ''
-    cargarProfesionales()
-  } catch (e) {
-    error.value = 'Error al agregar profesional.'
-  }
+  setTimeout(async () => {
+    try {
+      const horarios = horariosInput.value.split(',').map(h => h.trim()).filter(Boolean)
+      await createProfesional({
+        name: nombre.value,
+        especialidad: especialidad.value,
+        horariosDispo: horarios
+      })
+      mensaje.value = 'Profesional agregado correctamente.'
+      nombre.value = ''
+      especialidad.value = ''
+      horariosInput.value = ''
+      cargarProfesionales()
+    } catch (e) {
+      error.value = 'Error al agregar profesional.'
+    } finally {
+      loadingAgregar.value = false
+    }
+  }, 1200)
 }
 
 function iniciarEdicion(p) {
@@ -146,3 +159,13 @@ async function eliminarProfesional(id) {
   }
 }
 </script>
+
+<style scoped>
+.boton-animado-boton {
+  transition: transform 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+.boton-animado-boton:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 4px 16px 0 rgba(80, 0, 120, 0.13);
+}
+</style>

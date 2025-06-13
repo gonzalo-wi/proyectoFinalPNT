@@ -3,7 +3,9 @@
     <h2 class="text-2xl font-bold text-purple-700 mb-6">🗓️ Mis Turnos</h2>
     <div v-if="misTurnos.length === 0" class="text-center text-gray-500 mt-10">
       <p>No tenés turnos reservados todavía.</p>
-      <router-link to="/servicios" class="text-purple-700 font-semibold hover:underline">Reservar un turno</router-link>
+      <router-link to="/servicios" class="boton-animado-boton bg-purple-700 hover:bg-purple-800 text-white px-6 py-2 rounded-lg font-semibold shadow transition-all inline-block mt-4">
+        Reservar un turno
+      </router-link>
     </div>
     <div v-else class="space-y-4">
       <div v-for="t in misTurnos" :key="t.id" class="bg-white shadow-md rounded-lg p-4 border-l-4 border-purple-600">
@@ -53,3 +55,14 @@ function formatearHora(fechaStr) {
   return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 </script>
+
+<style scoped>
+.boton-animado-boton {
+  transition: transform 0.13s cubic-bezier(.4,0,.2,1), box-shadow 0.13s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 2px 8px 0 rgba(124,58,237,0.08);
+}
+.boton-animado-boton:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 18px 0 rgba(124,58,237,0.13);
+}
+</style>

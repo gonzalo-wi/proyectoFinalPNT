@@ -42,9 +42,12 @@
 
       <button
         type="submit"
-        class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-semibold"
+        :disabled="loadingSubmit"
+        class="w-full boton-animado-boton bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-semibold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        {{ modoEdicion ? 'Actualizar Turno' : 'Crear Turno' }}
+        <svg v-if="loadingSubmit" class="animate-spin w-5 h-5 text-white" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+        <span v-if="!loadingSubmit">{{ modoEdicion ? 'Actualizar Turno' : 'Crear Turno' }}</span>
+        <span v-else>Cargando...</span>
       </button>
       <button
         v-if="modoEdicion"
@@ -113,6 +116,7 @@ import { listarTurnos, crearTurno, eliminarTurno, actualizarTurno } from '../ser
 const turnos = ref([])
 const profesionales = ref([])
 const loadingTurnos = ref(true)
+const loadingSubmit = ref(false)
 
 const turnoForm = ref({
   cliente: '',
@@ -148,6 +152,7 @@ const getNombreProfesional = (profesionalId) => {
 }
 
 const crearTurnoForm = async () => {
+  loadingSubmit.value = true
   try {
     
     let fechaISO = turnoForm.value.fecha
@@ -166,6 +171,7 @@ const crearTurnoForm = async () => {
     alert('Error al crear el turno')
     console.error(e)
   }
+  loadingSubmit.value = false
 }
 
 const editarTurno = (turno) => {
@@ -176,6 +182,7 @@ const editarTurno = (turno) => {
 }
 
 const actualizarTurnoForm = async () => {
+  loadingSubmit.value = true
   if (!turnoEditando.value) return
   try {
     await actualizarTurno(turnoEditando.value.id, { ...turnoForm.value })
@@ -184,6 +191,7 @@ const actualizarTurnoForm = async () => {
   } catch (e) {
     alert('Error al actualizar el turno')
   }
+  loadingSubmit.value = false
 }
 
 const cancelarEdicion = () => {
@@ -207,3 +215,14 @@ const eliminarTurnoForm = async (id) => {
   }
 }
 </script>
+
+<style scoped>
+.boton-animado-boton {
+  transition: transform 0.13s cubic-bezier(.4,0,.2,1), box-shadow 0.13s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 2px 8px 0 rgba(124,58,237,0.08);
+}
+.boton-animado-boton:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 18px 0 rgba(124,58,237,0.13);
+}
+</style>

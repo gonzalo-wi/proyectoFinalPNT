@@ -18,14 +18,19 @@
       </div>
       <div class="flex flex-col gap-2 mt-auto">
         <button
-          class="w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white py-2 px-4 rounded-lg shadow hover:from-purple-600 hover:to-blue-600 transition font-semibold transform hover:scale-105 hover:-translate-y-1 duration-200"
-          @click.stop="onSolicitarTurno && onSolicitarTurno()"
+          class="w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white py-2 px-4 rounded-lg shadow hover:from-purple-600 hover:to-blue-600 transition font-semibold boton-animado-boton flex items-center justify-center gap-2"
+          @click.stop="handleSolicitarTurno"
+          :disabled="loading"
         >
-          Solicitar turno
+          <svg v-if="loading" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+          </svg>
+          <span v-else>Solicitar turno</span>
         </button>
         <button
           v-if="onVerDetalles"
-          class="w-full border border-purple-300 text-purple-700 py-2 px-4 rounded-lg font-semibold hover:bg-purple-50 transition"
+          class="w-full border border-purple-300 text-purple-700 py-2 px-4 rounded-lg font-semibold hover:bg-purple-50 transition boton-animado-boton flex items-center justify-center gap-2"
           @click.stop="onVerDetalles && onVerDetalles()"
         >
           Ver detalles
@@ -36,7 +41,11 @@
 </template>
 
 <script setup>
-defineProps({
+import { ref } from 'vue'
+
+const loading = ref(false)
+
+const props = defineProps({
   nombre: String,
   imagen: String,
   descripcion: String,
@@ -47,6 +56,15 @@ defineProps({
   onCardClick: Function,
   onVerDetalles: Function
 })
+
+function handleSolicitarTurno() {
+  if (loading.value) return
+  loading.value = true
+  setTimeout(() => {
+    loading.value = false
+    props.onSolicitarTurno && props.onSolicitarTurno()
+  }, 1000)
+}
 </script>
 
 <style scoped>
@@ -68,5 +86,12 @@ defineProps({
 }
 .animate-fade-in-up {
   animation: fade-in-up 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+.boton-animado-boton {
+  transition: transform 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+.boton-animado-boton:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 4px 16px 0 rgba(80, 0, 120, 0.13);
 }
 </style>

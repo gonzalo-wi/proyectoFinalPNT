@@ -20,7 +20,7 @@
       <div class="mb-4">
         <span class="font-semibold">Cliente:</span> {{ turno.cliente }}
       </div>
-      <router-link to="/servicios" class="block mt-6 text-center bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-semibold">Volver a servicios</router-link>
+      <router-link to="/servicios" class="block mt-6 text-center bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-semibold boton-animado-boton">Volver a servicios</router-link>
     </div>
     <div v-else class="text-center text-gray-500">No se encontró información del turno.</div>
   </div>
@@ -66,3 +66,13 @@ function formatearHora(fechaStr) {
   return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 </script>
+
+<style scoped>
+.boton-animado-boton {
+  transition: transform 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+.boton-animado-boton:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 4px 16px 0 rgba(80, 0, 120, 0.13);
+}
+</style>
